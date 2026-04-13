@@ -259,8 +259,13 @@ def _gen_core(
         audio = model.generate(**kw)
     except Exception as e:
         return None, f"Error: {type(e).__name__}: {e}"
+        
+    a = audio[0]
 
-    waveform = audio[0].squeeze().numpy()
+    if hasattr(a, "numpy"):  # torch tensor
+        waveform = a.squeeze().cpu().numpy()
+    else:  # already numpy
+        waveform = a.squeeze()
     waveform = (waveform * 32767).astype(np.int16)
     return (sampling_rate, waveform), "Done."
 
